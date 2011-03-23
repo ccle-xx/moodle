@@ -12,9 +12,10 @@
  */
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->libdir . '/blocklib.php');
+require_once($CFG->libdir . '/jira.php');
 
 // form to process help request
-require_once(dirname(__FILE__).'/help_form.php' );
+require_once(dirname(__FILE__) . '/help_form.php' );
 
 // determine context of page request
 // can be modal/course/site
@@ -56,9 +57,8 @@ echo '<h3>' . get_string('helpbox_header', 'block_ucla_help') . '</h3>';
 // for reference, please read (code example was updated for Moodle 2.0): 
 // "How do I access a blocks config data from outside the block?"
 // http://moodle.org/mod/forum/discuss.php?d=129799
-
 //$instance = $DB->get_record('block_instances', array('id' => $blockinfo->id), '*', MUST_EXIST); 
-$instance = $DB->get_record('block_instances', array('blockname' => 'ucla_help'), '*', MUST_EXIST); 
+$instance = $DB->get_record('block_instances', array('blockname' => 'ucla_help'), '*', MUST_EXIST);
 $block_ucla_help = block_instance('ucla_help', $instance);
 
 // now show specific text for helpbox (should be set in configuration page
@@ -88,13 +88,125 @@ if ($fromform = $mform->get_data()) {
     //in the first form field or the first field with an error.
     //call to print_heading_with_help or print_heading? then :
     //put data you want to fill out in the form into array $toform here then :
-
     //$mform->set_data($toform);
     $mform->display();
 }
 
 echo '</div>';
 
-
 echo $OUTPUT->footer();
+
+/**
+ * 
+ * @return 
+ */
+function create_debugging_info()
+{
+    
+}
+
+/**
+ * Copied from CCLE 1.9 feedback code.
+ * @param type $stuff
+ * @return string 
+ */
+function print_ascii_table($stuff)
+{
+    $formatted_table = array();
+    $formatted_string = "";
+
+    // Parse through once to get proper formatting length
+    $line_count = 0;
+    foreach ($stuff as $line) {
+        $line_count++;
+        foreach (get_object_vars($line) as $key => $data) {
+            unset($test_string);
+
+            // Make the testing string
+            $test_string = ' ';
+            if ($key == 'time') {
+                $test_string .= date('r', $data);
+            } else {
+                $test_string .= $data;
+            }
+            $test_string .= ' ';
+
+            // Get length
+            $string_length = strlen($test_string);
+
+            // Get max length
+            if (!isset($formatted_table[$key])) {
+                $formatted_table[$key] = $string_length;
+            } else if ($formatted_table[$key] < $string_length) {
+                $formatted_table[$key] = $string_length;
+            }
+
+            if ($formatted_table[$key] < strlen(" " . $key . " ")) {
+                $formatted_table[$key] = strlen(" " . $key . " ");
+            }
+        }
+    }
+
+    $formatted_table['KINDEX'] = 0;
+    while ($line_count >= 1) {
+        $line_count = $line_count / 10;
+        $formatted_table['KINDEX']++;
+    }
+
+    $line_count = 0;
+    $formatted_string .= "\n";
+
+    // Print field names
+    $formatted_line = "| ";
+    while (strlen($formatted_line) - 2 < $formatted_table['KINDEX']) {
+        $formatted_line .= "-";
+    }
+    $formatted_line .= " |";
+    $formatted_set = strlen($formatted_line);
+
+    $sampleline = $stuff[array_rand($stuff)];
+    foreach (get_object_vars($sampleline) as $key => $data) {
+        $formatted_line .= " ";
+        $formatted_line .= $key;
+
+        while (strlen($formatted_line) - $formatted_set < $formatted_table[$key]) {
+            $formatted_line .= " ";
+        }
+        $formatted_line .= "|";
+        $formatted_set = strlen($formatted_line);
+    }
+    $formatted_string .= $formatted_line . "\n";
+
+    for ($i = 0; $i < $formatted_set; $i++) {
+        $formatted_string .= "-";
+    }
+    $formatted_string .= "\n";
+
+    foreach ($stuff as $line) {
+        $line_count++;
+        $formatted_line = "| " . $line_count;
+        while (strlen($formatted_line) - 3 < $formatted_table['KINDEX']) {
+            $formatted_line .= " ";
+        }
+        $formatted_line .= "|";
+        $formatted_set = strlen($formatted_line);
+
+        foreach (get_object_vars($line) as $key => $data) {
+            $formatted_line .= " ";
+            if ($key == 'time') {
+                $formatted_line .= date('r', $data);
+            } else {
+                $formatted_line .= $data;
+            }
+
+            while (strlen($formatted_line) - $formatted_set < $formatted_table[$key]) {
+                $formatted_line .= " ";
+            }
+            $formatted_line .= "|";
+            $formatted_set = strlen($formatted_line);
+        }
+        $formatted_string .= $formatted_line . "\n";
+    }
+    return $formatted_string;
+}
 ?>

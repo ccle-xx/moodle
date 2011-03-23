@@ -9,7 +9,7 @@ require_once($CFG->libdir . '/formslib.php');
 class help_form extends moodleform {
  
     function definition() {
-        global $CFG;
+        global $USER;
  
         $mform =& $this->_form;
  
@@ -31,6 +31,12 @@ class help_form extends moodleform {
                 'block_ucla_help'), 'required', '', 'server');        
         $mform->addRule('ucla_help_description', get_string('empty_description', 
                 'block_ucla_help'), 'required', '', 'client');
+        
+        // set defaults for name/email
+        if(isloggedin() && !isguestuser()) {
+            $mform->setDefault('ucla_help_name', "$USER->firstname $USER->lastname");
+            $mform->setDefault('ucla_help_email', $USER->email);
+        }        
     }                           
 }          
 ?>

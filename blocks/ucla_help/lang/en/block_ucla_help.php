@@ -16,9 +16,12 @@ $string['helpform_header'] = 'Report a Problem';
 $string['helpform_text'] = 'Use the form below to report a problem or error. Include your email address so we can get back to you.';
 
 $string['config_helpbox'] = 'Help Box Text';
+$string['config_send_to'] = 'Send To';
+$string['config_send_to_email_option'] = 'Email';
+$string['config_send_to_jira_option'] = 'JIRA';
+
 
 $string['block_text'] = 'This block is only used by admins to change settings.';
 
-$string['config_title'] = 'Title';
 $string['config_text'] = 'Block Text';
 
