@@ -67,7 +67,7 @@ if (empty($block_ucla_help->config->helpbox_text)) {
     // no text set, so use default text
     echo get_string('helpbox_text_default', 'block_ucla_help');
 } else {
-    echo $block_ucla_help->config->helpbox_text['text'];
+    echo format_text($block_ucla_help->config->helpbox_text['text'], FORMAT_HTML);
 }
 echo '</div>';
 
@@ -77,12 +77,33 @@ echo '<div>' . get_string('helpform_text', 'block_ucla_help') . '</div>';
 $mform = new help_form();
 //default 'action' for form is strip_querystring(qualified_me())
 if ($fromform = $mform->get_data()) {
-    //this branch is where you process validated data.
     
     // get email body
-    $body = create_help_message($fromform);
+    $body = create_help_message($fromform);    
     
+    // check if need to send message via email
+    if ('email' == $block_ucla_help->config->send_to) {
+        
+        if(!empty($fromform->ucla_help_email)) {
+            $from = $fromform->ucla_help_email;
+        } else {
+            @$from = $USER->email;
+        }        
+        
+        // just going to use php's built-in email functionality. Moodle provides
+        // a function called "email_to_user", but it requires a user in the 
+        // database to exist
+        if (mail($block_ucla_help->config->email, 'Moodle Feedback: from ' . $from, $body, 'From: ' . $from)) {
+            $OUTPUT->notification(get_string('success_sending_email', 'block_ucla_help'), 'notifysuccess');
+        } else {
+            $OUTPUT->error_text(get_string('error_sending_email', 'block_ucla_help'));
+        }
+        
+    } elseif ('jira' == $block_ucla_help->config->send_to) {
     
+    } else {
+        
+    }    
 }
 $mform->display();
 

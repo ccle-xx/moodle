@@ -37,6 +37,17 @@ class block_ucla_help_edit_form extends block_edit_form {
         $mform->addElement('text', 'config_jira_password', get_string('config_jira_password', 'block_ucla_help'));
         $mform->addElement('text', 'config_jira_pid', get_string('config_jira_pid', 'block_ucla_help'));
         $mform->addElement('text', 'config_jira_default_assignee', get_string('config_jira_default_assignee', 'block_ucla_help'));
+        
+        // disable email options if user selects jira
+        $mform->disabledIf('config_email', 'config_send_to', 'eq', 'jira');
+        
+        // disable jira options if user selects email
+        $mform->disabledIf('config_jira_endpoint', 'config_send_to', 'eq', 'email');
+        $mform->disabledIf('config_jira_user', 'config_send_to', 'eq', 'email');
+        $mform->disabledIf('config_jira_password', 'config_send_to', 'eq', 'email');
+        $mform->disabledIf('config_jira_pid', 'config_send_to', 'eq', 'email');
+        $mform->disabledIf('config_jira_default_assignee', 'config_send_to', 'eq', 'email');
+
     }
 
 }
