@@ -78,31 +78,101 @@ $mform = new help_form();
 //default 'action' for form is strip_querystring(qualified_me())
 if ($fromform = $mform->get_data()) {
     //this branch is where you process validated data.
-} else {
-    // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
-    // or on the first display of the form.
-    //setup strings for heading
-//    print_header_simple($streditinga, '', "<a href=\"$CFG->wwwroot/mod/$module->name/index.php?id=$course->id\">$strmodulenameplural</a> ->
-//     $strnav $streditinga", $mform->focus(), "", false);
-    //notice use of $mform->focus() above which puts the cursor 
-    //in the first form field or the first field with an error.
-    //call to print_heading_with_help or print_heading? then :
-    //put data you want to fill out in the form into array $toform here then :
-    //$mform->set_data($toform);
-    $mform->display();
+    
+    // get email body
+    $body = create_help_message($fromform);
+    
+    
 }
+$mform->display();
+
 
 echo '</div>';
 
 echo $OUTPUT->footer();
 
 /**
+ * Constructs body of email that will be sent when user submits help form.
  * 
- * @return 
+ * @param mixed $fromform   Form data submitted by user. Passed by reference. 
+ * 
+ * @return string           Returns 
  */
-function create_debugging_info()
+function create_help_message(&$fromform)
 {
+    global $COURSE, $CFG, $DB, $SESSION, $USER;
     
+    // If user is not logged in, then a majority of these values will raise PHP 
+    // notices, so supress them with @    
+    
+    // setup description array
+    $description['maildisplay'][0] = '0 - '.get_string('emaildisplayno');
+    $description['maildisplay'][1] = '1 - '.get_string('emaildisplayyes');
+    $description['maildisplay'][2] = '2 - '.get_string('emaildisplaycourse');
+    $description['autosubscribe'][0] = '0 - '.get_string('autosubscribeno');
+    $description['autosubscribe'][1] = '1 - '.get_string('autosubscribeyes');
+    $description['emailstop'][0] = '0 - '.get_string('emailenable');
+    $description['emailstop'][1] = '1 - '.get_string('emaildisable');
+    $description['htmleditor'][0] = '0 - '.get_string('texteditor');
+    $description['htmleditor'][1] = '1 - '.get_string('htmleditor');
+    $description['trackforums'][0] = '0 - '.get_string('trackforumsno');
+    $description['trackforums'][1] = '1 - '.get_string('trackforumsyes');
+    $description['screenreader'][0] = '0 - '.get_string('screenreaderno');
+    $description['screenreader'][1] = '1 - '.get_string('screenreaderyes');
+    $description['ajax'][0] = '0 - '.get_string('ajaxno');
+    $description['ajax'][1] = '1 - '.get_string('ajaxyes');
+    
+    if (isset($USER->currentcourseaccess[$COURSE->id])) {
+        $accesstime = date('r' , $USER->currentcourseaccess[$COURSE->id]);
+    } else {
+        @$accesstime = date('r' , $USER->lastaccess);
+    }
+
+    // Needs stripslashes after obtaining information that has been escaped for security reasons    
+    $body = stripslashes($fromform->ucla_help_name) . " wrote: " . 
+            stripslashes($fromform->ucla_help_description) . "\n
+    Name: " . stripslashes($fromform->ucla_help_name) . "
+    UCLA ID Number: " . @$USER->idnumber . "
+    Email: " . stripslashes($fromform->ucla_help_email) . "
+    Server: $_SERVER[SERVER_NAME]
+    User_Agent: $_SERVER[HTTP_USER_AGENT]
+    Host: $_SERVER[REMOTE_ADDR]
+    Referer: $_SERVER[HTTP_REFERER]
+    Course Shortname: $COURSE->shortname
+    Access Time: $accesstime
+    Link to User Profile: $CFG->wwwroot/user/view.php?id=$USER->id
+    SESSION_fromdiscussion   = " . @$SESSION->fromdiscussion . "
+    USER_id                  = $USER->id
+    USER_auth                = " . @$USER->auth . "
+    USER_username            = " . @$USER->username . "
+    USER_institution         = " . @$USER->institution . "
+    USER_firstname           = " . @$USER->firstname . "
+    USER_lastname            = " . @$USER->lastname . "
+    USER_email               = " . @$USER->email . "
+    USER_emailstop           = " . @$description['emailstop'][$USER->emailstop] . "
+    USER_lastaccess          = " . @date('r' , $USER->lastaccess) . "
+    USER_lastlogin           = " . @date('r' , $USER->lastlogin) . "
+    USER_lastip              = " . @$USER->lastip . "
+    USER_maildisplay         = " . @$description['maildisplay'][$USER->maildisplay] . "
+    USER_htmleditor          = " . @$description['htmleditor'][$USER->htmleditor] . "
+    USER_ajax (AJAX and Javascript) = " . @$description['ajax'][$USER->ajax] . "
+    USER_autosubscribe       = " . @$description['autosubscribe'][$USER->autosubscribe] . "
+    USER_trackforums         = " . @$description['trackforums'][$USER->trackforums] . "
+    USER_timemodified        = " . @date('r' , $USER->timemodified) . "
+    USER_screenreader        = " . @$description['screenreader'][$USER->screenreader];
+    $body .= "\n";
+    
+    // get logging records
+    $log_records = $DB->get_records('log', array('userid' => $USER->id), 'time DESC', '*', 0, 10);        
+    if (empty($log_records)) {
+        $body .= "No log entries\n";
+    } else {
+        $body .= print_ascii_table($log_records);
+    }
+        
+    $body .= 'This message was generated by ' . __FILE__;    
+    
+    return $body;
 }
 
 /**

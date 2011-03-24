@@ -25,11 +25,16 @@ class help_form extends moodleform {
         // no point in having a cancel option
         $this->add_action_buttons(false, get_string('submit_button', 'block_ucla_help'));
         
+        // trim all input
+        $mform->applyFilter('ucla_help_name', 'trim');
+        $mform->applyFilter('ucla_help_email', 'trim');
+        $mform->applyFilter('ucla_help_description', 'trim');
+        
         // make description field a required field with client and 
         // server-side validation
-        $mform->addRule('ucla_help_description', get_string('empty_description', 
+        $mform->addRule('ucla_help_description', get_string('error_empty_description', 
                 'block_ucla_help'), 'required', '', 'server');        
-        $mform->addRule('ucla_help_description', get_string('empty_description', 
+        $mform->addRule('ucla_help_description', get_string('error_empty_description', 
                 'block_ucla_help'), 'required', '', 'client');
         
         // set defaults for name/email
