@@ -77,6 +77,8 @@ echo '<div>' . get_string('helpform_text', 'block_ucla_help') . '</div>';
 $mform = new help_form();
 //default 'action' for form is strip_querystring(qualified_me())
 if ($fromform = $mform->get_data()) {
+
+    echo $OUTPUT->box_start('generalbox', 'notice');
     
     // get email body
     $body = create_help_message($fromform);    
@@ -84,19 +86,27 @@ if ($fromform = $mform->get_data()) {
     // check if need to send message via email
     if ('email' == $block_ucla_help->config->send_to) {
         
+        $mail = get_mailer();
+        
         if(!empty($fromform->ucla_help_email)) {
-            $from = $fromform->ucla_help_email;
+            $mail->From = $fromform->ucla_help_email;
+        } else if (!empty($USER->email)) {
+            $mail->From = $USER->email;
         } else {
-            @$from = $USER->email;
-        }        
+            $mail->From = $CFG->noreplyaddress;
+        }             
+        
+        $mail->AddAddress($block_ucla_help->config->email);        
+        $mail->Subject = 'Moodle feedback from ' . $mail->From;
+        $mail->Body = $body;
         
         // just going to use php's built-in email functionality. Moodle provides
         // a function called "email_to_user", but it requires a user in the 
         // database to exist
-        if (mail($block_ucla_help->config->email, 'Moodle Feedback: from ' . $from, $body, 'From: ' . $from)) {
-            $OUTPUT->notification(get_string('success_sending_email', 'block_ucla_help'), 'notifysuccess');
+        if ($mail->Send()) {
+            echo $OUTPUT->notification(get_string('success_sending_email', 'block_ucla_help'), 'notifysuccess');
         } else {
-            $OUTPUT->error_text(get_string('error_sending_email', 'block_ucla_help'));
+            echo $OUTPUT->error_text(get_string('error_sending_email', 'block_ucla_help'));
         }
         
     } elseif ('jira' == $block_ucla_help->config->send_to) {
@@ -104,12 +114,20 @@ if ($fromform = $mform->get_data()) {
     } else {
         
     }    
+    
+    if ($COURSE->id == 1) {
+        $url = $CFG->wwwroot;
+    } else {
+        $url = $CFG->wwwroot . '/course/view.php?id=' . $COURSE->id;
+    }
+    echo sprintf('<a href="%s">%s</a>', $url, get_string('continue'));
+    echo $OUTPUT->box_end();    
+    
+} else {
+    $mform->display();    
 }
-$mform->display();
-
 
 echo '</div>';
-
 echo $OUTPUT->footer();
 
 /**
@@ -150,10 +168,10 @@ function create_help_message(&$fromform)
     }
 
     // Needs stripslashes after obtaining information that has been escaped for security reasons    
-    $body = stripslashes($fromform->ucla_help_name) . " wrote: " . 
+    $body = stripslashes($fromform->ucla_help_name) . " wrote: \n\n" . 
             stripslashes($fromform->ucla_help_description) . "\n
     Name: " . stripslashes($fromform->ucla_help_name) . "
-    UCLA ID Number: " . @$USER->idnumber . "
+    UCLA ID: " . @$USER->idnumber . "
     Email: " . stripslashes($fromform->ucla_help_email) . "
     Server: $_SERVER[SERVER_NAME]
     User_Agent: $_SERVER[HTTP_USER_AGENT]
@@ -161,7 +179,7 @@ function create_help_message(&$fromform)
     Referer: $_SERVER[HTTP_REFERER]
     Course Shortname: $COURSE->shortname
     Access Time: $accesstime
-    Link to User Profile: $CFG->wwwroot/user/view.php?id=$USER->id
+    User Profile: $CFG->wwwroot/user/view.php?id=$USER->id
     SESSION_fromdiscussion   = " . @$SESSION->fromdiscussion . "
     USER_id                  = $USER->id
     USER_auth                = " . @$USER->auth . "
