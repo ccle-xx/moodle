@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <XMLDB PATH="blocks/ucla_help/db" VERSION="20110418" COMMENT="XMLDB file for Moodle blocks/ucla_help">
+    <TABLES>
+      <TABLE NAME="ucla_help" COMMENT="Default comment for ucla_help, please edit me">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" UNSIGNED="true" NOTNULL="true" SEQUENCE="true" />
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+        </KEYS>
+      </TABLE>
+    </TABLES>
+  </XMLDB>
