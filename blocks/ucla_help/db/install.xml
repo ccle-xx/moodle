@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-  <XMLDB PATH="blocks/ucla_help/db" VERSION="20110418" COMMENT="XMLDB file for Moodle blocks/ucla_help">
-    <TABLES>
-      <TABLE NAME="ucla_help" COMMENT="Default comment for ucla_help, please edit me">
-        <FIELDS>
-          <FIELD NAME="id" TYPE="int" LENGTH="10" UNSIGNED="true" NOTNULL="true" SEQUENCE="true" />
-        </FIELDS>
-        <KEYS>
-          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
-        </KEYS>
-      </TABLE>
-    </TABLES>
-  </XMLDB>
+<XMLDB PATH="blocks/ucla_help/db" VERSION="20110420" COMMENT="XMLDB file for Moodle blocks/ucla_help"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="ucla_help" COMMENT="Table to hold user defined context to support contact for the UCLA Help Block">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="context_name"/>
+        <FIELD NAME="context_name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Can be class or category name. If matches a name in the config.php file, then config.php file takes precedence." PREVIOUS="id" NEXT="contact"/>
+        <FIELD NAME="contact" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Can be JIRA user or email. Will be treated as either depending on block setting." PREVIOUS="context_name"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
