@@ -16,4 +16,16 @@
   </TABLE>
  </TABLES>
 
+ <STATEMENTS>
+    <STATEMENT NAME="insert ucla_rolemapping" TYPE="insert" TABLE="ucla_rolemapping" COMMENT="Initial insert of default records of pseudo_roles and its mapping to moodle_roles" >
+     <SENTENCES>
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('ta', '02 whenever there is also an 01',3,'*SYSTEM*')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('ta', '02 whenever there is also an 01', 4,'CHEM')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('instructor', 'Always an 01', 5, '*SYSTEM*')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('waitlisted', 'Student trying to add course', 2, '*SYSTEM*')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('enrolled', 'Student enrolled in the course', 2, '*SYSTEM*')" />
+      </SENTENCES>
+    </STATEMENT>
+  </STATEMENTS>
+  
  </XMLDB>
