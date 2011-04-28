@@ -7,6 +7,11 @@ require_once(dirname(__FILE__) . "/../config.php");
 
 function role_mapping ($profcode, array $other_roles, $subject_area="*SYSTEM*"){
 
+//roles are mapped to moodle roles after applying basic rules (specific to a subj area) to the incoming prof codes for the instructors
+//A role mapping file overrides any existing entries in the database to apply more specific role mapping.
+
+function role_mapping ($profcode, array $other_roles, $subject_area){
+
 	$pseudorole = get_pseudorole($profcode, $other_roles); //logic to parse profcodes, and return pseudorole
 	$moodleroleid = get_moodlerole($pseudorole, $subject_area); //call to the ucla_rolemapping table
 	return $moodleroleid;
@@ -30,8 +35,8 @@ function get_pseudorole($profcode, array $other_roles){
 	{
 		$hasrole[$other_roles[$i]]='true';
 	}
-   	
-    switch ($profcode){
+
+	switch ($profcode){
 	    case 1:
 			return "instructor";
 		case 2:
@@ -52,17 +57,18 @@ function get_moodlerole($pseudorole, $subject_area) //call to the ucla_rolemappi
 	global $CFG,$DB;
 		
 	$rolemappingfile = $CFG->dirroot."/enrol/database/role_mappings.php";
+	
 	$moodleroleobject = $DB->get_record('ucla_rolemapping',array('pseudo_role'=>$pseudorole, 'subject_area'=>$subject_area));
 	$moodle_roleid = $moodleroleobject->moodle_roleid;
 	
 	if (file_exists($rolemappingfile))
 	{
-		require_once($rolemappingfile);
+		include($rolemappingfile);
 		if($moodlerole = $DB->get_record('role', array('shortname'=>$role[$pseudorole][$subject_area]))){
 			$moodle_roleid = $moodlerole->id;
 		}
 	}
 	return $moodle_roleid;
+
 }
 
-?>
