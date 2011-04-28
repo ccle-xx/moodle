@@ -2,6 +2,7 @@
 
 //This file is required to map roles coming in from the registrar view and stored procedures to the Moodle specific roles
 //A role mapping file (role_mapping.php in /enrol/database/) overrides any existing entries in the database table ucla_rolemapping
+<<<<<<< HEAD
 
 require_once(dirname(__FILE__) . "/../config.php");
 
@@ -9,6 +10,8 @@ function role_mapping ($profcode, array $other_roles, $subject_area="*SYSTEM*"){
 
 //roles are mapped to moodle roles after applying basic rules (specific to a subj area) to the incoming prof codes for the instructors
 //A role mapping file overrides any existing entries in the database to apply more specific role mapping.
+=======
+>>>>>>> removing echo statements
 
 function role_mapping ($profcode, array $other_roles, $subject_area){
 
@@ -36,7 +39,7 @@ function get_pseudorole($profcode, array $other_roles){
 		$hasrole[$other_roles[$i]]='true';
 	}
 
-	switch ($profcode){
+    switch ($profcode){
 	    case 1:
 			return "instructor";
 		case 2:
@@ -57,7 +60,6 @@ function get_moodlerole($pseudorole, $subject_area) //call to the ucla_rolemappi
 	global $CFG,$DB;
 		
 	$rolemappingfile = $CFG->dirroot."/enrol/database/role_mappings.php";
-	
 	$moodleroleobject = $DB->get_record('ucla_rolemapping',array('pseudo_role'=>$pseudorole, 'subject_area'=>$subject_area));
 	$moodle_roleid = $moodleroleobject->moodle_roleid;
 	
