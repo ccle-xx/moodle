@@ -21,9 +21,9 @@
      <SENTENCES>
         <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('ta', '02 whenever there is also an 01',3,'*SYSTEM*')" />
         <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('ta', '02 whenever there is also an 01', 4,'CHEM')" />
-        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('instructor', 'Always an 01', 5, '*SYSTEM*')" />
-        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('waitlisted', 'Student trying to add course', 2, '*SYSTEM*')" />
-        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('enrolled', 'Student enrolled in the course', 2, '*SYSTEM*')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('instructor', 'Always an 01', 3, '*SYSTEM*')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('waitlisted', 'Student trying to add course', 5, '*SYSTEM*')" />
+        <SENTENCE TEXT="(pseudo_role, description, moodle_roleid, subject_area) VALUES ('enrolled', 'Student enrolled in the course', 5, '*SYSTEM*')" />
       </SENTENCES>
     </STATEMENT>
   </STATEMENTS>
