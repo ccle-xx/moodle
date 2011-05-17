@@ -28,3 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version = 2010073100;
 //TODO: should we add cron sync?
+
+// START UCLA MODIFICATION CCLE-2320: Role mappings added to this XMLDB.
+$plugin->version = 2011051700;
+// END UCLA MODIFICATION CCLE-2320
+

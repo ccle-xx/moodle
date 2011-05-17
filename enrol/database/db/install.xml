@@ -7,7 +7,7 @@
     <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="pseudo_role" /> 
     <FIELD NAME="pseudo_role" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="description" /> 
     <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="describes the rule that translates to a moodle role" PREVIOUS="pseudo_role" NEXT="moodle_roleid" /> 
-    <FIELD NAME="moodle_roleid" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Id for the role whose shortname is in mdl_role table" PREVIOUS="descripton" NEXT="subject_area" /> 
+    <FIELD NAME="moodle_roleid" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Id for the role whose shortname is in mdl_role table" PREVIOUS="description" NEXT="subject_area" /> 
     <FIELD NAME="subject_area" TYPE="char" LENGTH="50" NOTNULL="true"  DEFAULT="*SYSTEM*" SEQUENCE="false" PREVIOUS="moodle_roleid" /> 
    </FIELDS>
    <KEYS>
