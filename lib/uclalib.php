@@ -5,9 +5,6 @@
 
 require_once(dirname(__FILE__) . "/../config.php");
 
-//roles are mapped to moodle roles after applying basic rules (specific to a subj area) to the incoming prof codes for the instructors
-//A role mapping file overrides any existing entries in the database to apply more specific role mapping.
-
 function role_mapping ($profcode, array $other_roles, $subject_area="*SYSTEM*"){
 
 	$pseudorole = get_pseudorole($profcode, $other_roles); //logic to parse profcodes, and return pseudorole
@@ -67,9 +64,7 @@ function get_moodlerole($pseudorole, $subject_area) //call to the ucla_rolemappi
 	}
 	return $moodle_roleid;
 
-<<<<<<< HEAD
 }
 
-=======
 ?>
->>>>>>> correcting shortname and moodle role ids in role mapping file and table
+
