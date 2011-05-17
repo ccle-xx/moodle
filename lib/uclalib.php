@@ -3,7 +3,7 @@
 //This file is required to map roles coming in from the registrar view and stored procedures to the Moodle specific roles
 //A role mapping file (role_mapping.php in /enrol/database/) overrides any existing entries in the database table ucla_rolemapping
 
-require_once("../config.php");
+require_once(dirname(__FILE__) . "/../config.php");
 
 function role_mapping ($profcode, array $other_roles, $subject_area="*SYSTEM*"){
 
