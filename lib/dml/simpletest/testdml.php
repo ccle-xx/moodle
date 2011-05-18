@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 class dml_test extends UnitTestCase {
     private $tables = array();
+    /** @var moodle_database */
     private $tdb;
     private $data;
     public  static $includecoverage = array('lib/dml');
@@ -177,56 +178,75 @@ class dml_test extends UnitTestCase {
 
         // Correct usage of multiple values
         $in_values = array('value1', 'value2', 'value3', 'value4');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', true);
-        $this->assertEqual("IN (:param01,:param02,:param03,:param04)", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', true);
         $this->assertEqual(4, count($params));
         reset($in_values);
+        $ps = array();
         foreach ($params as $key => $value) {
             $this->assertEqual(current($in_values), $value);
             next($in_values);
+            $ps[] = ':'.$key;
         }
+        $this->assertEqual("IN (".implode(',', $ps).")", $usql);
 
         // Correct usage of single values (in array)
         $in_values = array('value1');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', true);
-        $this->assertEqual("= :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', true);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_values[0], $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("= :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // Correct usage of single value
         $in_value = 'value1';
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', true);
-        $this->assertEqual("= :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', true);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_value, $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("= :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // SQL_PARAMS_NAMED - NOT IN or <>
 
         // Correct usage of multiple values
         $in_values = array('value1', 'value2', 'value3', 'value4');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', false);
-        $this->assertEqual("NOT IN (:param01,:param02,:param03,:param04)", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', false);
         $this->assertEqual(4, count($params));
         reset($in_values);
+        $ps = array();
         foreach ($params as $key => $value) {
             $this->assertEqual(current($in_values), $value);
             next($in_values);
+            $ps[] = ':'.$key;
         }
+        $this->assertEqual("NOT IN (".implode(',', $ps).")", $usql);
 
         // Correct usage of single values (in array)
         $in_values = array('value1');
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', false);
-        $this->assertEqual("<> :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', false);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_values[0], $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("<> :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
         // Correct usage of single value
         $in_value = 'value1';
-        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param01', false);
-        $this->assertEqual("<> :param01", $usql);
+        list($usql, $params) = $DB->get_in_or_equal($in_values, SQL_PARAMS_NAMED, 'param', false);
         $this->assertEqual(1, count($params));
-        $this->assertEqual($in_value, $params['param01']);
+        $value = reset($params);
+        $key = key($params);
+        $this->assertEqual("<> :$key", $usql);
+        $this->assertEqual($in_value, $value);
 
+        // make sure the param names are unique
+        list($usql1, $params1) = $DB->get_in_or_equal(array(1,2,3), SQL_PARAMS_NAMED, 'param');
+        list($usql2, $params2) = $DB->get_in_or_equal(array(1,2,3), SQL_PARAMS_NAMED, 'param');
+        $params1 = array_keys($params1);
+        $params2 = array_keys($params2);
+        $common = array_intersect($params1, $params2);
+        $this->assertEqual(count($common), 0);
     }
 
     public function test_fix_table_names() {
@@ -1015,6 +1035,19 @@ class dml_test extends UnitTestCase {
         $inskey6 = $DB->insert_record($tablename, array('course' => 1));
         $inskey7 = $DB->insert_record($tablename, array('course' => 0));
 
+        $table2 = $this->get_test_table("2");
+        $tablename2 = $table2->getName();
+        $table2->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table2->add_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table2->add_field('nametext', XMLDB_TYPE_TEXT, 'small', null, null, null, null);
+        $table2->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $dbman->create_table($table2);
+
+        $DB->insert_record($tablename2, array('course'=>3, 'nametext'=>'badabing'));
+        $DB->insert_record($tablename2, array('course'=>4, 'nametext'=>'badabang'));
+        $DB->insert_record($tablename2, array('course'=>5, 'nametext'=>'badabung'));
+        $DB->insert_record($tablename2, array('course'=>6, 'nametext'=>'badabong'));
+
         $records = $DB->get_records_sql("SELECT * FROM {{$tablename}} WHERE course = ?", array(3));
         $this->assertEqual(2, count($records));
         $this->assertEqual($inskey1, reset($records)->id);
@@ -1067,6 +1100,30 @@ class dml_test extends UnitTestCase {
         $this->assertEqual(2, count($records));
         $this->assertEqual($inskey3, reset($records)->id);
         $this->assertEqual($inskey2, end($records)->id);
+
+        // test 2 tables with aliases and limits with order bys
+        $sql = "SELECT t1.id, t1.course AS cid, t2.nametext
+                  FROM {{$tablename}} t1, {{$tablename2}} t2
+                 WHERE t2.course=t1.course
+              ORDER BY t1.course, ". $DB->sql_compare_text('t2.nametext');
+        $records = $DB->get_records_sql($sql, null, 2, 2); // Skip courses 3 and 6, get 4 and 5
+        $this->assertEqual(2, count($records));
+        $this->assertEqual('5', end($records)->cid);
+        $this->assertEqual('4', reset($records)->cid);
+
+        // test 2 tables with aliases and limits with the highest INT limit works
+        $records = $DB->get_records_sql($sql, null, 2, PHP_INT_MAX); // Skip course {3,6}, get {4,5}
+        $this->assertEqual(2, count($records));
+        $this->assertEqual('5', end($records)->cid);
+        $this->assertEqual('4', reset($records)->cid);
+
+        // test 2 tables with aliases and limits with order bys (limit which is highest INT number)
+        $records = $DB->get_records_sql($sql, null, PHP_INT_MAX, 2); // Skip all courses
+        $this->assertEqual(0, count($records));
+
+        // test 2 tables with aliases and limits with order bys (limit which s highest INT number)
+        $records = $DB->get_records_sql($sql, null, PHP_INT_MAX, PHP_INT_MAX); // Skip all courses
+        $this->assertEqual(0, count($records));
 
         // TODO: Test limits in queries having DISTINCT clauses
 
@@ -2040,6 +2097,7 @@ class dml_test extends UnitTestCase {
         $record = $DB->get_record($tablename, array('course' => 2));
         $this->assertEqual($newclob, $record->onetext, 'Test "small" CLOB update (full contents output disabled)');
         $this->assertEqual($newblob, $record->onebinary, 'Test "small" BLOB update (full contents output disabled)');
+
     }
 
     public function test_set_field() {
@@ -2399,6 +2457,70 @@ class dml_test extends UnitTestCase {
         $DB->insert_record($tablename, array('course' => 3));
 
         $this->assertTrue($DB->record_exists_sql("SELECT * FROM {{$tablename}} WHERE course = ?", array(3)));
+    }
+
+    public function test_recordset_locks_delete() {
+        $DB = $this->tdb;
+        $dbman = $DB->get_manager();
+
+        //Setup
+        $table = $this->get_test_table();
+        $tablename = $table->getName();
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $dbman->create_table($table);
+
+        $DB->insert_record($tablename, array('course' => 1));
+        $DB->insert_record($tablename, array('course' => 2));
+        $DB->insert_record($tablename, array('course' => 3));
+        $DB->insert_record($tablename, array('course' => 4));
+        $DB->insert_record($tablename, array('course' => 5));
+        $DB->insert_record($tablename, array('course' => 6));
+
+        // Test against db write locking while on an open recordset
+        $rs = $DB->get_recordset($tablename, array(), null, 'course', 2, 2); // get courses = {3,4}
+        foreach ($rs as $record) {
+            $cid = $record->course;
+            $DB->delete_records($tablename, array('course' => $cid));
+            $this->assertFalse($DB->record_exists($tablename, array('course' => $cid)));
+        }
+        $rs->close();
+
+        $this->assertEqual(4, $DB->count_records($tablename, array()));
+    }
+
+    public function test_recordset_locks_update() {
+        $DB = $this->tdb;
+        $dbman = $DB->get_manager();
+
+        //Setup
+        $table = $this->get_test_table();
+        $tablename = $table->getName();
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $dbman->create_table($table);
+
+        $DB->insert_record($tablename, array('course' => 1));
+        $DB->insert_record($tablename, array('course' => 2));
+        $DB->insert_record($tablename, array('course' => 3));
+        $DB->insert_record($tablename, array('course' => 4));
+        $DB->insert_record($tablename, array('course' => 5));
+        $DB->insert_record($tablename, array('course' => 6));
+
+        // Test against db write locking while on an open recordset
+        $rs = $DB->get_recordset($tablename, array(), null, 'course', 2, 2); // get courses = {3,4}
+        foreach ($rs as $record) {
+            $cid = $record->course;
+            $DB->set_field($tablename, 'course', 10, array('course' => $cid));
+            $this->assertFalse($DB->record_exists($tablename, array('course' => $cid)));
+        }
+        $rs->close();
+
+        $this->assertEqual(2, $DB->count_records($tablename, array('course' => 10)));
     }
 
     public function test_delete_records() {
@@ -3609,6 +3731,31 @@ class dml_test extends UnitTestCase {
         $this->assertEqual(1, count($records));
         $this->assertTrue($records = $DB->get_records_sql($sqlnamed, array('content' => '2')));
         $this->assertEqual(1, count($records));
+    }
+
+    public function test_bound_param_reserved() {
+        $DB = $this->tdb;
+        $dbman = $DB->get_manager();
+
+        $table = $this->get_test_table();
+        $tablename = $table->getName();
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $dbman->create_table($table);
+
+        $DB->insert_record($tablename, array('course' => '1'));
+
+        // make sure reserved words do not cause fatal problems in query parameters
+
+        $DB->execute("UPDATE {{$tablename}} SET course = 1 WHERE ID = :select", array('select'=>1));
+        $DB->get_records_sql("SELECT * FROM {{$tablename}} WHERE course = :select", array('select'=>1));
+        $rs = $DB->get_recordset_sql("SELECT * FROM {{$tablename}} WHERE course = :select", array('select'=>1));
+        $rs->close();
+        $DB->get_fieldset_sql("SELECT id FROM {{$tablename}} WHERE course = :select", array('select'=>1));
+        $DB->set_field_select($tablename, 'course', '1', "id = :select", array('select'=>1));
+        $DB->delete_records_select($tablename, "id = :select", array('select'=>1));
     }
 
     public function test_limits_and_offsets() {

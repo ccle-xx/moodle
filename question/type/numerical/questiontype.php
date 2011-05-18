@@ -299,9 +299,14 @@ class question_numerical_qtype extends question_shortanswer_qtype {
             $options->unitsleft = 0 ;
         }
 
-        $options->instructions = $this->import_or_save_files($question->instructions,
+        if (isset($question->instructions) && is_array($question->instructions)){
+            $options->instructions = $this->import_or_save_files($question->instructions,
                     $question->context, 'qtype_'.$question->qtype , 'instruction', $question->id);
-        $options->instructionsformat = $question->instructions['format'];
+            $options->instructionsformat = $question->instructions['format'];
+        } else {
+            $options->instructions = '' ;
+            $options->instructionsformat = editors_get_preferred_format();
+        }
 
         $DB->update_record('question_numerical_options', $options);
 
@@ -608,7 +613,7 @@ class question_numerical_qtype extends question_shortanswer_qtype {
             if($question->options->unitgradingtype == 1){
                 $raw_unitpenalty = $question->options->unitpenalty * $rawgrade ;
             }else {
-                $raw_unitpenalty = $question->options->unitpenalty * $question->maxgrade;
+                $raw_unitpenalty = $question->options->unitpenalty ;
             }
             $state->options->raw_unitpenalty = $raw_unitpenalty ;
         }
@@ -818,7 +823,7 @@ class question_numerical_qtype extends question_shortanswer_qtype {
             if($question->options->unitgradingtype == 1){
                 $raw_unitpenalty = $question->options->unitpenalty * $state->raw_grade ;
             }else {
-                $raw_unitpenalty = $question->options->unitpenalty * $question->maxgrade;
+                $raw_unitpenalty = $question->options->unitpenalty ;
             }
             $state->raw_grade -= $raw_unitpenalty ;
         }
