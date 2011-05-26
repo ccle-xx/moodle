@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_enrol_database_upgrade($oldversion) {
     global $CFG, $DB;
 
-    require('upgradelib.php');
+    require($CFG->wwwroot.'/lib/db/upgradelib.php');
 
     $result = true;
     $dbman = $DB->get_manager();
@@ -62,35 +62,35 @@ function xmldb_enrol_database_upgrade($oldversion) {
 	
 		$DB->insert_record('ucla_rolemapping',$newmapping);
 
-		$newmapping= new stdClass();
-		$newmapping->pseudo_role = 'ta';
-		$newmapping->description = '02 whenever there is also an 01'; 
-		$newmapping->moodle_roleid = 4;
-		$newmapping->subject_area = 'CHEM';
+		$newmapping1= new stdClass();
+		$newmapping1->pseudo_role = 'ta';
+		$newmapping1->description = '02 whenever there is also an 01'; 
+		$newmapping1->moodle_roleid = 4;
+		$newmapping1->subject_area = 'CHEM';
 		
 		$DB->insert_record('ucla_rolemapping',$newmapping);
         
-		$newmapping= new stdClass();
-		$newmapping->pseudo_role = 'instructor';
-		$newmapping->description = 'Always an 01'; 
-		$newmapping->moodle_roleid = 3;
-		$newmapping->subject_area = '*SYSTEM*';
+		$newmapping2= new stdClass();
+		$newmapping2->pseudo_role = 'instructor';
+		$newmapping2->description = 'Always an 01'; 
+		$newmapping2->moodle_roleid = 3;
+		$newmapping2->subject_area = '*SYSTEM*';
 		
 		$DB->insert_record('ucla_rolemapping',$newmapping);
 		
-		$newmapping= new stdClass();
-		$newmapping->pseudo_role = 'waitlisted';
-		$newmapping->description = 'Student trying to add course'; 
-		$newmapping->moodle_roleid = 5;
-		$newmapping->subject_area = '*SYSTEM*';
+		$newmapping3= new stdClass();
+		$newmapping3->pseudo_role = 'waitlisted';
+		$newmapping3->description = 'Student trying to add course'; 
+		$newmapping3->moodle_roleid = 5;
+		$newmapping3->subject_area = '*SYSTEM*';
 		
 		$DB->insert_record('ucla_rolemapping',$newmapping);
 		
-		$newmapping= new stdClass();
-		$newmapping->pseudo_role = 'enrolled';
-		$newmapping->description = 'Student enrolled in the course'; 
-		$newmapping->moodle_roleid = 5;
-		$newmapping->subject_area = '*SYSTEM*';
+		$newmapping4= new stdClass();
+		$newmapping4->pseudo_role = 'enrolled';
+		$newmapping4->description = 'Student enrolled in the course'; 
+		$newmapping4->moodle_roleid = 5;
+		$newmapping4->subject_area = '*SYSTEM*';
 		
 		$DB->insert_record('ucla_rolemapping',$newmapping);
 		
