@@ -68,7 +68,7 @@ function xmldb_enrol_database_upgrade($oldversion) {
 		$newmapping1->moodle_roleid = 4;
 		$newmapping1->subject_area = 'CHEM';
 		
-		$DB->insert_record('ucla_rolemapping',$newmapping);
+		$DB->insert_record('ucla_rolemapping',$newmapping1);
         
 		$newmapping2= new stdClass();
 		$newmapping2->pseudo_role = 'instructor';
@@ -76,7 +76,7 @@ function xmldb_enrol_database_upgrade($oldversion) {
 		$newmapping2->moodle_roleid = 3;
 		$newmapping2->subject_area = '*SYSTEM*';
 		
-		$DB->insert_record('ucla_rolemapping',$newmapping);
+		$DB->insert_record('ucla_rolemapping',$newmapping2);
 		
 		$newmapping3= new stdClass();
 		$newmapping3->pseudo_role = 'waitlisted';
@@ -84,7 +84,7 @@ function xmldb_enrol_database_upgrade($oldversion) {
 		$newmapping3->moodle_roleid = 5;
 		$newmapping3->subject_area = '*SYSTEM*';
 		
-		$DB->insert_record('ucla_rolemapping',$newmapping);
+		$DB->insert_record('ucla_rolemapping',$newmapping3);
 		
 		$newmapping4= new stdClass();
 		$newmapping4->pseudo_role = 'enrolled';
@@ -92,7 +92,7 @@ function xmldb_enrol_database_upgrade($oldversion) {
 		$newmapping4->moodle_roleid = 5;
 		$newmapping4->subject_area = '*SYSTEM*';
 		
-		$DB->insert_record('ucla_rolemapping',$newmapping);
+		$DB->insert_record('ucla_rolemapping',$newmapping4);
 		
 		// database savepoint reached
         upgrade_plugin_savepoint(true, 2011051700, 'enrol', 'database');
