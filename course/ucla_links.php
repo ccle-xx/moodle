@@ -37,7 +37,7 @@
     echo $OUTPUT->header();
     // Links not complete, placeholder for testing...
     // This will probably have to be refactored later...
-    echo $OUTPUT->box("<p>Useful Links for UCLA Class Sites</p>
+    /*echo $OUTPUT->box("<p>Useful Links for UCLA Class Sites</p>
         <ul>
             <li>Constitution Day at UC</li>
         </ul>
@@ -65,6 +65,22 @@
                 <li>Course Reserves</li>
             </ul>
         </ul>
-            ");
+            ");*/
+    echo "<h2>Useful Links for UCLA Class Sites</h2>";
+    echo "<ul>";
+    $i = 1;
+    $list = array();
+    while(TRUE) {
+      $link = get_config('ucla_links', "link$i");
+      if($link == '') {
+          break;
+      }
+      else {
+        $link_name = get_config('ucla_links', "link$i"."_name");
+        echo "<li><a href=\"$link\">$link_name</a></li>";
+        $i++;
+      }
+    }
+    echo "</ul>";
     echo $OUTPUT->footer();
 ?>

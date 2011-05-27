@@ -87,7 +87,8 @@ class question_essay_qtype extends default_questiontype {
         $feedback = '';
         if ($options->feedback && !empty($answers)) {
             foreach ($answers as $answer) {
-                $feedback = quiz_rewrite_question_urls($answer->feedback, 'pluginfile.php', $context->id, 'qtype_essay', 'feedback', array($state->attempt, $state->question), $answer->id);
+                $feedback = quiz_rewrite_question_urls($answer->feedback, 'pluginfile.php',
+                        $context->id, 'question', 'answerfeedback', array($state->attempt, $state->question), $answer->id);
                 $feedback = format_text($feedback, $answer->feedbackformat, $formatoptions, $cmoptions->course);
             }
         }
@@ -125,6 +126,16 @@ class question_essay_qtype extends default_questiontype {
         $state->penalty = 0;
 
         return true;
+    }
+
+    /**
+     * @param string response is a response.
+     * @return formatted response
+     */
+    function format_response($response, $format) {
+        $safeformatoptions = new stdClass();
+        $safeformatoptions->para = false;
+        return s(html_to_text(format_text($response, FORMAT_MOODLE, $safeformatoptions), 0, false));
     }
 
     /**
