@@ -26,18 +26,20 @@ role InstSet Pseudo Role
 
 function get_pseudorole($profcode, array $other_roles){
 
-	for ($i=0;$i<count($other_roles);$i++)
+	$max= count($other_roles);
+	for ($i=0;$i<$max;$i++)
 	{
 		$hasrole[$other_roles[$i]]='true';
 	}
    	
+	
     switch ($profcode){
 	    case 1:
 			return "instructor";
 		case 2:
 			if($hasrole[1] == 'true' && $hasrole[2] == 'true') {
 			  return "ta";
-			}elseif($hasrole[1] != 'true' && $hasrole[2] == 'true' && $hasrole[3] == 'true' ){
+			}else if($hasrole[1] != 'true' && $hasrole[2] == 'true' && $hasrole[3] == 'true' ){
 			  return "ta_instructor";
 			}
 		case 3:
@@ -47,7 +49,7 @@ function get_pseudorole($profcode, array $other_roles){
 	}
 }
 
-function get_moodlerole($pseudorole, $subject_area) //call to the ucla_rolemapping table
+function get_moodlerole($pseudorole, $subject_area="*SYSTEM*") //call to the ucla_rolemapping table
 {
 	global $CFG,$DB;
 		
