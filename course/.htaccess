@@ -1,5 +1,3 @@
-
-
 # * Start UCLA Modification *
 # beatify course URLs
 
@@ -39,5 +37,8 @@ RewriteCond %{ENV:REL_PATH} !^import/ [NC]
 RewriteCond %{ENV:REL_PATH} !^report/ [NC]
 RewriteRule ^.+$ ../$0 [NC,NE,QSA,PT]
 
+# START UCLA MODIFICATION CCLE-2252: Automatic SSL redirection
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
 
 # * End UCLA Modification *
