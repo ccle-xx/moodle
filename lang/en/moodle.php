@@ -1815,3 +1815,20 @@ $string['yourself'] = 'yourself';
 $string['yourteacher'] = 'your {$a}';
 $string['yourwordforx'] = 'Your word for \'{$a}\'';
 $string['zippingbackup'] = 'Zipping backup';
+
+$string['publicprivategroupname'] = 'Course Members';
+$string['publicprivategroupdeprecated'] = '_old_';
+$string['publicprivategroupdescription'] = 'Group created and used for public/private functionality. All users should belong to this group.';
+$string['publicprivategroupingname'] = 'Private Course Material';
+$string['publicprivategroupingdeprecated'] = '_old_';
+$string['publicprivategroupingdescription'] = 'Grouping created and used for public/private functionality. ' . $string['publicprivategroupname'] . ' group should be in this grouping.';
+$string['publicprivatemakepublic'] = 'Make Public';
+$string['publicprivatemakeprivate'] = 'Make Private';
+$string['publicprivate'] = 'Public/Private';
+$string['publicprivateadd'] = 'Add Public/Private functionality';
+$string['publicprivateupgradesure'] = 'Public/Private functionality appears to be present, but not installed. <br /><br />
+Moodle would now like to install Public/Private functionality on the server.<br /><br />';
+$string['publicprivaterestore'] = 'Default Public/Private on Restore';
+$string['publicprivaterestore_description'] = 'In the event that a restore occurs from an instance of Moodle that does not include public/private, if this setting is defined, the restored course will default to public/private enabled.';
+$string['publicprivate_option_enable'] = 'Course Editors Can Set Public/Private';
+$string['publicprivate_option_enable_description'] = 'If checked, course editors can turn public/private on/off. Otherwise, only administrators can do this.';

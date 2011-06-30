@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->libdir.'/filelib.php');
+require_once($CFG->libdir.'/publicprivate/course.class.php');
 
 define('COURSE_MAX_LOG_DISPLAY', 150);          // days
 define('COURSE_MAX_LOGS_PER_PAGE', 1000);       // records
@@ -3070,6 +3071,13 @@ function make_editing_buttons($mod, $absolute=false, $moveselect=true, $indent=-
         $str->duplicate      = get_string("duplicate");
         $str->hide           = get_string("hide");
         $str->show           = get_string("show");
+
+        /**
+         * Icon alternate strings for making an item public or private
+         */
+        $str->public         = get_string("publicprivatemakepublic");
+        $str->private        = get_string("publicprivatemakeprivate");
+
         $str->clicktochange  = get_string("clicktochange");
         $str->forcedmode     = get_string("forcedmode");
         $str->groupsnone     = get_string("groupsnone");
@@ -3103,6 +3111,39 @@ function make_editing_buttons($mod, $absolute=false, $moveselect=true, $indent=-
         }
     } else {
         $hideshow = '';
+    }
+
+    /**
+     * If the course for $mod->course has public/private enabled, then display
+     * an editing button to enable/disable public/private.
+     *
+     * @todo PUBPRI - Inefficient because this is called for each module.
+     */
+    require_once($CFG->libdir.'/publicprivate/course.class.php');
+    $publicprivate_course = new PublicPrivate_Course($mod->course);
+    $pubpriv = '';
+    if($publicprivate_course->is_activated())
+    {
+        /**
+         * If the module is private, show a toggle to make it public, or if it
+         * is public, then show a toggle to make it private.
+         */
+        require_once($CFG->libdir.'/publicprivate/module.class.php');
+        $publicprivate_module = new PublicPrivate_Module($mod->id);
+        if($publicprivate_module->is_private())
+        {
+            $pubpriv = '<a class="editing_makepublic" title="'.$str->public.'" href="'.$path.'/mod.php?public='.$mod->id.
+                        '&amp;sesskey='.$sesskey.$section.'"><img'.
+                        ' src="'.$OUTPUT->pix_url('t/private').'" class="iconsmall" '.
+                        ' alt="'.$str->public.'" /></a>'."\n";
+        }
+        else
+        {
+            $pubpriv = '<a class="editing_makeprivate" title="'.$str->private.'" href="'.$path.'/mod.php?private='.$mod->id.
+                        '&amp;sesskey='.$sesskey.$section.'"><img'.
+                        ' src="'.$OUTPUT->pix_url('t/public').'" class="iconsmall" '.
+                        ' alt="'.$str->private.'" /></a>'."\n";
+        }
     }
 
     if ($mod->groupmode !== false) {
@@ -3195,7 +3236,7 @@ function make_editing_buttons($mod, $absolute=false, $moveselect=true, $indent=-
            '<a class="editing_delete" title="'.$str->delete.'" href="'.$path.'/mod.php?delete='.$mod->id.
            '&amp;sesskey='.$sesskey.$section.'"><img'.
            ' src="'.$OUTPUT->pix_url('t/delete') . '" class="iconsmall" '.
-           ' alt="'.$str->delete.'" /></a>'."\n".$hideshow.$groupmode."\n".$assign.'</span>';
+           ' alt="'.$str->delete.'" /></a>'."\n".$hideshow.$pubpriv.$groupmode."\n".$assign.'</span>';
 }
 
 /**
@@ -3755,6 +3796,35 @@ function create_course($data, $editoroptions = NULL) {
     // Trigger events
     events_trigger('course_created', $course);
 
+    /**
+     * Set the course up with public/private settings correctly.
+     */
+    $pubpriv_course = new PublicPrivate_Course($course);
+    
+    /**
+     * If public/private is set, then it should be activated (creating group/
+     * grouping) and enrolled users as per earlier in this routine should be
+     * added to the group.
+     *
+     * @throws PublicPrivate_Course_Exception
+     */
+    if($course->enablepublicprivate == 1)
+    {
+        $pubpriv_course->activate();
+        $pubpriv_course->add_enrolled_users();
+    }
+    /**
+     * If public/private is not set, then this makes sure that it's not 
+     * activated somewhere earlier in this script and, if it is, then it should
+     * be deactivated.
+     *
+     * @throws PublicPrivate_Course_Exception
+     */
+    else if($pubpriv_course->is_activated())
+    {
+        $pubpriv_course->deactivate();
+    }
+
     return $course;
 }
 
@@ -3834,6 +3904,36 @@ function update_course($data, $editoroptions = NULL) {
 
     // Trigger events
     events_trigger('course_updated', $course);
+
+    /**
+     * Detect if this update changed the public/private state for the course.
+     */
+    if($data->enablepublicprivate != $oldcourse->enablepublicprivate)
+    {
+        $pubpriv_course = new PublicPrivate_Course($course);
+        
+        /**
+         * If public/private was enabled, activate it (creating group/grouping)
+         * and add all enrolled users to the public/private group.
+         *
+         * @throws PublicPrivate_Course_Exception
+         */
+        if($course->enablepublicprivate == 1)
+        {
+            $pubpriv_course->activate();
+            $pubpriv_course->add_enrolled_users();
+        }
+        /**
+         * If public/private was disabled and is activated currently, then
+         * deactivate it (deleting group/grouping).
+         *
+         * @throws PublicPrivate_Course_Exception
+         */
+        else if($pubpriv_course->is_activated())
+        {
+            $pubpriv_course->deactivate();
+        }
+    }
 }
 
 /**
