@@ -96,7 +96,46 @@ function xmldb_enrol_database_install() {
         unset_config('enrol_db_ignorehiddencourse');
     }
 
+	// DEFAULT ENTRIES FOR THE UCLA_ROLEMAPPING TABLE (PSEUDO_ROLE <-> MOODLE_ROLE)
+	$newmapping= new stdClass();
+	$newmapping->pseudo_role = 'ta';
+	$newmapping->description = '02 whenever there is also an 01'; 
+	$newmapping->moodle_roleid = 3;
+	$newmapping->subject_area = '*SYSTEM*';
 
+	$DB->insert_record('ucla_rolemapping',$newmapping);
+
+	$newmapping= new stdClass();
+	$newmapping->pseudo_role = 'ta';
+	$newmapping->description = '02 whenever there is also an 01'; 
+	$newmapping->moodle_roleid = 4;
+	$newmapping->subject_area = 'CHEM';
+	
+	$DB->insert_record('ucla_rolemapping',$newmapping);
+	
+	$newmapping= new stdClass();
+	$newmapping->pseudo_role = 'instructor';
+	$newmapping->description = 'Always an 01'; 
+	$newmapping->moodle_roleid = 3;
+	$newmapping->subject_area = '*SYSTEM*';
+	
+	$DB->insert_record('ucla_rolemapping',$newmapping);
+	
+	$newmapping= new stdClass();
+	$newmapping->pseudo_role = 'waitlisted';
+	$newmapping->description = 'Student trying to add course'; 
+	$newmapping->moodle_roleid = 5;
+	$newmapping->subject_area = '*SYSTEM*';
+	
+	$DB->insert_record('ucla_rolemapping',$newmapping);
+	
+	$newmapping= new stdClass();
+	$newmapping->pseudo_role = 'enrolled';
+	$newmapping->description = 'Student enrolled in the course'; 
+	$newmapping->moodle_roleid = 5;
+	$newmapping->subject_area = '*SYSTEM*';
+	
+	$DB->insert_record('ucla_rolemapping',$newmapping);
 
 
 
